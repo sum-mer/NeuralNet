@@ -9,12 +9,21 @@ import java.io.File;
 import java.io.IOException;
 import javax.swing.JFrame;
 import imageProcessing.ImageProcessing;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import org.apache.commons.io.FileUtils;
 
 /**
  *
@@ -27,12 +36,18 @@ public class MainWindow extends JFrame {
     public JMenu removeImageJMenu;
     public JMenuItem browseImagesJMenu;
     public JMenuItem jMenuItem;
+    public JFileChooser fc;
+    public File folderName;
+    public File brandDirs[];
 
     public MainWindow(String car_Recognition) throws IOException {
         super(car_Recognition);
         //BufferedImage image;
         //image = javax.imageio.ImageIO.read(new File("images/Fiat/fiat1.jpg"));
         //ImagePanel realImg = new ImagePanel(ImageProcessing.getScaledImage(image, 300, 200));
+
+        folderName = new File("images");
+        brandDirs = folderName.listFiles();
 
         jMenuBar = new JMenuBar();
         jMenu = new JMenu("Baza");
@@ -51,34 +66,48 @@ public class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent ae) {
             }
         });
-        
+
         //jMenu.addSeparator();
         removeImageJMenu = new JMenu("Dodaj zdjęcie");
         removeImageJMenu.setMnemonic(KeyEvent.VK_S);
-
-        jMenuItem = new JMenuItem("Marka 1");
-        jMenuItem.addActionListener(new ActionListener() {
+        removeImageJMenu.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent ae) {
             }
         });
-        removeImageJMenu.add(jMenuItem);
+        createBrandListMenu();
+
+
 
         browseImagesJMenu = new JMenuItem("Przeglądaj zdjęcia");
-
-        jMenuItem = new JMenuItem("Marka 2");
-        jMenuItem.addActionListener(new ActionListener() {
+        browseImagesJMenu.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent ae) {
             }
         });
-        removeImageJMenu.add(jMenuItem);
+
 
 
         jMenuItem = new JMenuItem("Dodaj nową ...");
         jMenuItem.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent ae) {
+                String newBrandName = JOptionPane.showInputDialog(null, "Wpisz nazwę marki : ",
+                        "Nowa marka", 1);
+                if (newBrandName != null) {
+                    // tworzenie pustego folderu dla nowej marki
+                    File newDirectory = new File("images/" + newBrandName);
+                    boolean status = newDirectory.mkdir();
+                    JOptionPane.showMessageDialog(null, "Stworzyłeś folder dla marki : " + newBrandName,
+                            "Nowa marka", 1);
+
+                } else {
+                    JOptionPane.showMessageDialog(null, "Anulowano dodawanie marki.",
+                            "Nowa marka", 1);
+                }
+
+
+
             }
         });
         removeImageJMenu.add(jMenuItem);
@@ -102,5 +131,41 @@ public class MainWindow extends JFrame {
         this.setLocationRelativeTo(null);
         this.setVisible(true);
         this.setSize(600, 600);
+    }
+
+    private void createBrandListMenu() {
+
+
+        for (final File brandName : brandDirs) {
+            if (!brandName.getName().equals("test")) {
+                jMenuItem = new JMenuItem(brandName.getName());
+                jMenuItem.setName(brandName.getName());
+                jMenuItem.addActionListener(new ActionListener() {
+
+                    public void actionPerformed(ActionEvent ae) {
+                        fc = new JFileChooser();
+                        FileFilter filter = new FileNameExtensionFilter("Image files", "jpg", "jpeg", "png", "bmp");
+                        fc.setAcceptAllFileFilterUsed(false);
+                        fc.addChoosableFileFilter(filter);
+                        int ret = fc.showDialog(null, "Wybierz plik");
+
+                        if (ret == JFileChooser.APPROVE_OPTION) {
+                            File file = fc.getSelectedFile();
+                            File source = file.getAbsoluteFile();
+                            File desc = new File(brandName.getAbsolutePath());
+                            try {
+                                FileUtils.copyFileToDirectory(source, desc);
+                                JOptionPane.showMessageDialog(null, "Dodano plik " + source.getName() + " do folderu marki " + brandName.getName(),
+                                        "Nowe zdjęcie", 1);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }
+                });
+                removeImageJMenu.add(jMenuItem);
+            }
+        }
     }
 }

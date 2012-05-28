@@ -53,27 +53,46 @@ public class ImageNeuralNetwork {
 
         final ImageNeuralNetwork program = new ImageNeuralNetwork();
 
-        program.processCreateTraining(30, 20, "RGB");
-        program.processInput("fiat", "images/Fiat/fiat1small.jpg");  
-        //program.processInput("fiat", "images/Fiat/fiat1.jpg");          // srebrna maska
-        //program.processInput("fiat", "images/Fiat/fiat2.jpg");          //niebieska maska
-        //program.processInput("fiat", "images/Fiat/fiat3.jpg");          // plastikowy zderzak
-
-        //program.processInput("renault", "images/Renault/renault1.jpg"); // srebrna maska, czarne wywietrzniki po bokach    
-        //program.processInput("renault", "images/Renault/renault2.jpg"); // srebrna maska, czarne wywietrzniki po bokach, inny kąt padania słońca
-        program.processInput("renault", "images/Renault/renault1small.jpg");
+        program.processCreateTraining(32, 32, "dupa");
         
-        program.processInput("toyota", "images/Toyota/toyota1small.jpg");
-        //program.processInput("toyota", "images/Toyota/toyota1.jpg");    //metaliczne tło
-        //program.processInput("toyota", "images/Toyota/toyota2.jpg");    //przedni zderzak, srebrne elementy
-        //program.processInput("toyota", "images/Toyota/toyota3.jpg");    //srebrna maska
-        //program.processInput("toyota", "images/Toyota/toyota4.jpg");    //srebrny zderzak, nie pod katem prostym
+        // pobieranie wszystkich obrazów z folderu images do uczenia sieci
+        // folder test jest pomijany - w nim przechowywane mają być zdjęcia do zapytań
+        File folderName = new File("images");  
+        File brandDirs[] = folderName.listFiles();
+        
+        for (File brandName : brandDirs) {
+            if (!brandName.getName().equals("test")) {
+                if (brandName.isDirectory()) {
+                    File brandFiles[] = brandName.listFiles();
+                    for (File brandImg : brandFiles) {
+                        //System.out.println("Marka: " + brandName.getName() + " plik: " + brandImg.getName() );
+                        program.processInput(brandName.getName(), folderName + "/" + brandName.getName() + "/" + brandImg.getName() );
+                    }
+                }
+            }
+        }
+        
+//        program.processInput("fiat", "images/Fiat/fiat1small.jpg");  
+//        program.processInput("fiat", "images/Fiat/fiat1.jpg");          // srebrna maska
+//        program.processInput("fiat", "images/Fiat/fiat2.jpg");          //niebieska maska
+//        program.processInput("fiat", "images/Fiat/fiat3.jpg");          // plastikowy zderzak
+//
+//        program.processInput("renault", "images/Renault/renault1.jpg"); // srebrna maska, czarne wywietrzniki po bokach    
+//        program.processInput("renault", "images/Renault/renault2.jpg"); // srebrna maska, czarne wywietrzniki po bokach, inny kąt padania słońca
+//        program.processInput("renault", "images/Renault/renault1small.jpg");
+//        
+//        program.processInput("toyota", "images/Toyota/toyota1small.jpg");
+//        program.processInput("toyota", "images/Toyota/toyota1.jpg");    //metaliczne tło
+//        program.processInput("toyota", "images/Toyota/toyota2.jpg");    //przedni zderzak, srebrne elementy
+//        program.processInput("toyota", "images/Toyota/toyota3.jpg");    //srebrna maska
+//        program.processInput("toyota", "images/Toyota/toyota4.jpg");    //srebrny zderzak, nie pod katem prostym
         
 
 
         program.processNetwork();
         program.processTrain();
-        program.processWhatIs("images/test/renault_internet.jpg");
+        program.processWhatIs("images/test/toyota1.jpg");
+
     }
     private final List<ImagePair> imageList =
             new ArrayList<ImagePair>();
@@ -173,6 +192,7 @@ public class ImageNeuralNetwork {
     private void processNetwork() throws IOException {
         System.out.println("Downsampling images...");
         for (final ImagePair pair : this.imageList) {
+
             final NeuralData ideal =
                     new BasicNeuralData(this.outputCount);
             final int idx = pair.getIdentity();
