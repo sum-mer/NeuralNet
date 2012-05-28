@@ -53,7 +53,7 @@ public class ImageNeuralNetwork {
 
         final ImageNeuralNetwork program = new ImageNeuralNetwork();
 
-        program.processCreateTraining(32, 32, "dupa");
+        program.processCreateTraining(15, 10, "noRGB");
 
         // pobieranie wszystkich obrazów z folderu images do uczenia sieci
         // folder test jest pomijany - w nim przechowywane mają być zdjęcia do zapytań
@@ -65,21 +65,21 @@ public class ImageNeuralNetwork {
                 if (brandName.isDirectory()) {
                     File brandFiles[] = brandName.listFiles();
                     for (File brandImg : brandFiles) {
-                        //System.out.println("Marka: " + brandName.getName() + " plik: " + brandImg.getName() );
+                        //System.out.println("Marka: " + brandName.getName() +" plik: " + brandImg.getName() );
                         program.processInput(brandName.getName(), folderName + "/" + brandName.getName() + "/" + brandImg.getName());
                     }
                 }
             }
         }
 
-//        program.processInput("fiat", "images/Fiat/fiat1small.jpg");  
+
 //        program.processInput("fiat", "images/Fiat/fiat1.jpg");          // srebrna maska
 //        program.processInput("fiat", "images/Fiat/fiat2.jpg");          //niebieska maska
 //        program.processInput("fiat", "images/Fiat/fiat3.jpg");          // plastikowy zderzak
 //
 //        program.processInput("renault", "images/Renault/renault1.jpg"); // srebrna maska, czarne wywietrzniki po bokach    
 //        program.processInput("renault", "images/Renault/renault2.jpg"); // srebrna maska, czarne wywietrzniki po bokach, inny kąt padania słońca
-//        program.processInput("renault", "images/Renault/renault1small.jpg");
+//        program.processInput("renault", "images/Renault/renault3.jpg");
 //        
 //        program.processInput("toyota", "images/Toyota/toyota1small.jpg");
 //        program.processInput("toyota", "images/Toyota/toyota1.jpg");    //metaliczne tło
@@ -90,7 +90,7 @@ public class ImageNeuralNetwork {
 
         program.processNetwork();
         program.processTrain();
-        program.processWhatIs("images/test/toyota1.jpg");
+        program.processWhatIs("images/test/test_renault.jpg");
 
     }
     private final List<ImagePair> imageList =
@@ -162,8 +162,8 @@ public class ImageNeuralNetwork {
 
     private void processCreateTraining(int width, int height, String strType) {
 
-        this.downsampleWidth = width;
-        this.downsampleHeight = height;
+        this.downsampleWidth = height;
+        this.downsampleHeight = width;
         if (strType.equals("RGB")) {
             this.downsample = new RGBDownsample();
         } else {
@@ -217,9 +217,9 @@ public class ImageNeuralNetwork {
         final String strMode = "gui";
         System.out.println("Training Beginning... Output patterns="
                 + this.outputCount);
-        final double strategyError = 0.25;
-        final int strategyCycles = 50;
-        //final Backpropagation train = new Backpropagation(this.network, this.training);
+        final double strategyError = 0.2;
+        final int strategyCycles = 80;
+        //final Backpropagation train = new Backpropagation(this.network, this.training,0.1, 0.5);
         final ResilientPropagation train = new ResilientPropagation(this.network, this.training);
         train.addStrategy(new ResetStrategy(strategyError, strategyCycles));
         //train.addStrategy(new SmartMomentum());
