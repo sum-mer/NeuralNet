@@ -54,24 +54,24 @@ public class ImageNeuralNetwork {
         final ImageNeuralNetwork program = new ImageNeuralNetwork();
 
         program.processCreateTraining(32, 32, "dupa");
-        
+
         // pobieranie wszystkich obrazów z folderu images do uczenia sieci
         // folder test jest pomijany - w nim przechowywane mają być zdjęcia do zapytań
-        File folderName = new File("images");  
+        File folderName = new File("images");
         File brandDirs[] = folderName.listFiles();
-        
+
         for (File brandName : brandDirs) {
             if (!brandName.getName().equals("test")) {
                 if (brandName.isDirectory()) {
                     File brandFiles[] = brandName.listFiles();
                     for (File brandImg : brandFiles) {
                         //System.out.println("Marka: " + brandName.getName() + " plik: " + brandImg.getName() );
-                        program.processInput(brandName.getName(), folderName + "/" + brandName.getName() + "/" + brandImg.getName() );
+                        program.processInput(brandName.getName(), folderName + "/" + brandName.getName() + "/" + brandImg.getName());
                     }
                 }
             }
         }
-        
+
 //        program.processInput("fiat", "images/Fiat/fiat1small.jpg");  
 //        program.processInput("fiat", "images/Fiat/fiat1.jpg");          // srebrna maska
 //        program.processInput("fiat", "images/Fiat/fiat2.jpg");          //niebieska maska
@@ -86,7 +86,6 @@ public class ImageNeuralNetwork {
 //        program.processInput("toyota", "images/Toyota/toyota2.jpg");    //przedni zderzak, srebrne elementy
 //        program.processInput("toyota", "images/Toyota/toyota3.jpg");    //srebrna maska
 //        program.processInput("toyota", "images/Toyota/toyota4.jpg");    //srebrny zderzak, nie pod katem prostym
-        
 
 
         program.processNetwork();
@@ -162,7 +161,7 @@ public class ImageNeuralNetwork {
     }
 
     private void processCreateTraining(int width, int height, String strType) {
-        
+
         this.downsampleWidth = width;
         this.downsampleHeight = height;
         if (strType.equals("RGB")) {
@@ -211,14 +210,14 @@ public class ImageNeuralNetwork {
                 this.downsampleHeight, this.downsampleWidth);
 
         this.network = EncogUtility.simpleFeedForward(this.training.getInputSize(), 100, 0, this.training.getIdealSize(), true);
-        System.out.println("Created network: "+ this.network.toString());
+        System.out.println("Created network: " + this.network.toString());
     }
 
     private void processTrain() throws IOException {
         final String strMode = "gui";
         System.out.println("Training Beginning... Output patterns="
                 + this.outputCount);
-        final double strategyError =0.25;
+        final double strategyError = 0.25;
         final int strategyCycles = 50;
         //final Backpropagation train = new Backpropagation(this.network, this.training);
         final ResilientPropagation train = new ResilientPropagation(this.network, this.training);
@@ -228,7 +227,7 @@ public class ImageNeuralNetwork {
             EncogUtility.trainDialog(train, this.network, this.training);
         } else {
 
-            EncogUtility.trainConsole(train, this.network, this.training,1);
+            EncogUtility.trainConsole(train, this.network, this.training, 1);
         }
         System.out.println("Training Stopped...");
     }
