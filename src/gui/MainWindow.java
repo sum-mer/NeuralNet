@@ -4,22 +4,15 @@
  */
 package gui;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import javax.swing.JFrame;
-import imageProcessing.ImageProcessing;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -101,12 +94,13 @@ public class MainWindow extends JFrame {
                     JOptionPane.showMessageDialog(null, "Stworzyłeś folder dla marki : " + newBrandName,
                             "Nowa marka", 1);
 
+                    brandDirs = folderName.listFiles();
+
+                    createBrandListMenu();
                 } else {
                     JOptionPane.showMessageDialog(null, "Anulowano dodawanie marki.",
                             "Nowa marka", 1);
                 }
-
-
 
             }
         });
@@ -128,16 +122,17 @@ public class MainWindow extends JFrame {
         //this.add(jMenuBar);
         this.setLayout(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setLocationRelativeTo(null);
         this.setVisible(true);
         this.setSize(600, 600);
     }
 
     private void createBrandListMenu() {
 
-
-        for (final File brandName : brandDirs) {
+        List<File> brandList =  Arrays.asList(brandDirs);  
+        Collections.sort(brandList);
+        for (final File brandName : brandList) {
             if (!brandName.getName().equals("test")) {
+                if (notExist(brandName)) {
                 jMenuItem = new JMenuItem(brandName.getName());
                 jMenuItem.setName(brandName.getName());
                 jMenuItem.addActionListener(new ActionListener() {
@@ -165,7 +160,19 @@ public class MainWindow extends JFrame {
                     }
                 });
                 removeImageJMenu.add(jMenuItem);
+                }
+                
             }
         }
+    }
+
+    public boolean notExist(File f) {
+        int count = removeImageJMenu.getItemCount();
+        for (int i = 0; i < count; i++) {
+            if (f.getName().equals(removeImageJMenu.getItem(i).getName())) {
+                return false;
+            } 
+        }
+        return true;
     }
 }
