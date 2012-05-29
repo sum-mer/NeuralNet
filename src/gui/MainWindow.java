@@ -11,16 +11,16 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import neuralNetwork.ImageNeuralNetwork;
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -43,17 +43,22 @@ public class MainWindow extends JFrame {
     private JLabel labelForImgOrg;
     private JButton startButton;
     private JPanel panelForImg;
+    private JProgressBar progressBar;
+    private java.util.Timer theTimer;
+    private ImageNeuralNetwork program;
+    private boolean isReady;
 
     public MainWindow(String car_Recognition) throws IOException {
         super(car_Recognition);
         //BufferedImage image;
         //image = javax.imageio.ImageIO.read(new File("images/Fiat/fiat1.jpg"));
         //ImagePanel realImg = new ImagePanel(ImageProcessing.getScaledImage(image, 300, 200));
-
+        program = new ImageNeuralNetwork();
         folderName = new File("images");
         brandDirs = folderName.listFiles();
         startButton = new JButton("Start");
         panelForImg = new JPanel();
+        progressBar = new javax.swing.JProgressBar();
 
         labelForImgOrg = new JLabel();
         labelForImgOrg.setHorizontalAlignment(JLabel.CENTER);
@@ -61,6 +66,27 @@ public class MainWindow extends JFrame {
         panelForImg.setLayout(new FlowLayout(FlowLayout.CENTER));
         panelForImg.add(labelForImgOrg);
         panelForImg.add(startButton);
+
+        panelForImg.add(progressBar);
+        startButton.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                startButton.setEnabled(false);
+                startProgress(60);
+                try {
+                    program.processCreateTraining(15, 10, "noRGB");
+                    program.loadImages();
+                    program.processNetwork();
+                    program.processTrain();
+                    isReady = true;
+                } catch (IOException ex) {
+                    System.out.println("dupa");;
+                }
+                
+
+            }
+        });
+
         setCanvas();
 
         jMenuBar = new JMenuBar();
@@ -194,6 +220,25 @@ public class MainWindow extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
         this.setSize(600, 600);
+    }
+
+    public void startProgress(int seconds) {
+        progressBar.setMaximum(seconds * 10);
+        theTimer = new java.util.Timer();
+        theTimer.schedule(new ProgressTimerTask(), new Date(), 100);
+    }
+
+    private class ProgressTimerTask extends TimerTask {
+
+        public void run() {
+            int currentProgressBarValue = progressBar.getValue();
+            if (currentProgressBarValue == progressBar.getMaximum()) {
+                theTimer.cancel();
+                theTimer = null;
+            } else {
+                progressBar.setValue(currentProgressBarValue + 1);
+            }
+        }
     }
 
     private void createBrandListMenu() {
