@@ -57,6 +57,8 @@ public class ImageNeuralNetwork {
 
         // pobieranie wszystkich obrazów z folderu images do uczenia sieci
         // folder test jest pomijany - w nim przechowywane mają być zdjęcia do zapytań
+
+/**
         File folderName = new File("images");
         File brandDirs[] = folderName.listFiles();
 
@@ -71,7 +73,7 @@ public class ImageNeuralNetwork {
                 }
             }
         }
-
+*/
 
 //        program.processInput("fiat", "images/Fiat/fiat1.jpg");          // srebrna maska
 //        program.processInput("fiat", "images/Fiat/fiat2.jpg");          //niebieska maska
@@ -87,7 +89,7 @@ public class ImageNeuralNetwork {
 //        program.processInput("toyota", "images/Toyota/toyota3.jpg");    //srebrna maska
 //        program.processInput("toyota", "images/Toyota/toyota4.jpg");    //srebrny zderzak, nie pod katem prostym
 
-
+        program.loadImages();
         program.processNetwork();
         program.processTrain();
         program.processWhatIs("images/test/test_renault.jpg");
@@ -102,7 +104,6 @@ public class ImageNeuralNetwork {
     private final Map<Integer, String> neuron2identity =
             new HashMap<Integer, String>();
     private ImageNeuralDataSet training;
-    private String line;
     private int outputCount;
     private int downsampleWidth;
     private int downsampleHeight;
@@ -151,16 +152,24 @@ public class ImageNeuralNetwork {
      * arg.substring(index2 + 1).trim(); this.args.put(key, value); }
      * executeCommand(command, this.args); }
      */
-    private String getArg(final String name) {
-        final String result = this.args.get(name);
-        if (result == null) {
-            throw new EncogError("Missing argument " + name
-                    + " on line: " + this.line);
+    public void loadImages() throws IOException {
+        File folderName = new File("images");
+        File brandDirs[] = folderName.listFiles();
+
+        for (File brandName : brandDirs) {
+            if (!brandName.getName().equals("test")) {
+                if (brandName.isDirectory()) {
+                    File brandFiles[] = brandName.listFiles();
+                    for (File brandImg : brandFiles) {
+                        //System.out.println("Marka: " + brandName.getName() +" plik: " + brandImg.getName() );
+                        this.processInput(brandName.getName(), folderName + "/" + brandName.getName() + "/" + brandImg.getName());
+                    }
+                }
+            }
         }
-        return result;
     }
 
-    private void processCreateTraining(int width, int height, String strType) {
+    public void processCreateTraining(int width, int height, String strType) {
 
         this.downsampleWidth = height;
         this.downsampleHeight = width;
@@ -180,7 +189,7 @@ public class ImageNeuralNetwork {
      * @param image ścieżka do pliku ze zdjęciem
      * @throws IOException
      */
-    private void processInput(String identity, String image) throws IOException {
+    public void processInput(String identity, String image) throws IOException {
 
         final int idx = assignIdentity(identity);
         final File file = new File(image);
@@ -188,7 +197,7 @@ public class ImageNeuralNetwork {
         System.out.println("Added input image:" + image);
     }
 
-    private void processNetwork() throws IOException {
+    public void processNetwork() throws IOException {
         System.out.println("Downsampling images...");
         for (final ImagePair pair : this.imageList) {
 
@@ -213,8 +222,8 @@ public class ImageNeuralNetwork {
         System.out.println("Created network: " + this.network.toString());
     }
 
-    private void processTrain() throws IOException {
-        final String strMode = "gui";
+    public void processTrain() throws IOException {
+        final String strMode = "nogui";
         System.out.println("Training Beginning... Output patterns="
                 + this.outputCount);
         final double strategyError = 0.2;
