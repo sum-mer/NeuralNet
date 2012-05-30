@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import org.encog.EncogError;
 import org.encog.neural.data.NeuralData;
+import org.encog.neural.data.NeuralDataPair;
 import org.encog.neural.data.basic.BasicNeuralData;
 import org.encog.neural.data.image.ImageNeuralData;
 import org.encog.neural.data.image.ImageNeuralDataSet;
@@ -58,23 +59,18 @@ public class ImageNeuralNetwork {
         // pobieranie wszystkich obrazów z folderu images do uczenia sieci
         // folder test jest pomijany - w nim przechowywane mają być zdjęcia do zapytań
 
-/**
-        File folderName = new File("images");
-        File brandDirs[] = folderName.listFiles();
-
-        for (File brandName : brandDirs) {
-            if (!brandName.getName().equals("test")) {
-                if (brandName.isDirectory()) {
-                    File brandFiles[] = brandName.listFiles();
-                    for (File brandImg : brandFiles) {
-                        //System.out.println("Marka: " + brandName.getName() +" plik: " + brandImg.getName() );
-                        program.processInput(brandName.getName(), folderName + "/" + brandName.getName() + "/" + brandImg.getName());
-                    }
-                }
-            }
-        }
-*/
-
+        /**
+         * File folderName = new File("images"); File brandDirs[] =
+         * folderName.listFiles();
+         *
+         * for (File brandName : brandDirs) { if
+         * (!brandName.getName().equals("test")) { if (brandName.isDirectory())
+         * { File brandFiles[] = brandName.listFiles(); for (File brandImg :
+         * brandFiles) { //System.out.println("Marka: " + brandName.getName() +"
+         * plik: " + brandImg.getName() );
+         * program.processInput(brandName.getName(), folderName + "/" +
+         * brandName.getName() + "/" + brandImg.getName()); } } } }
+         */
 //        program.processInput("fiat", "images/Fiat/fiat1.jpg");          // srebrna maska
 //        program.processInput("fiat", "images/Fiat/fiat2.jpg");          //niebieska maska
 //        program.processInput("fiat", "images/Fiat/fiat3.jpg");          // plastikowy zderzak
@@ -88,11 +84,10 @@ public class ImageNeuralNetwork {
 //        program.processInput("toyota", "images/Toyota/toyota2.jpg");    //przedni zderzak, srebrne elementy
 //        program.processInput("toyota", "images/Toyota/toyota3.jpg");    //srebrna maska
 //        program.processInput("toyota", "images/Toyota/toyota4.jpg");    //srebrny zderzak, nie pod katem prostym
-
         program.loadImages();
         program.processNetwork();
         program.processTrain();
-        program.processWhatIs("images/test/test_renault.jpg");
+        System.out.println(program.processWhatIs(ImageIO.read(new File("images/test/test_renault.jpg"))));
 
     }
     private final List<ImagePair> imageList =
@@ -178,7 +173,7 @@ public class ImageNeuralNetwork {
         } else {
             this.downsample = new SimpleIntensityDownsample();
         }
-        this.training = new ImageNeuralDataSet(this.downsample, false, 1, -1);
+        this.training = new ImageNeuralDataSet(this.downsample, true, 1, -1);
         System.out.println("Training set created");
     }
 
@@ -241,16 +236,12 @@ public class ImageNeuralNetwork {
         System.out.println("Training Stopped...");
     }
 
-    public void processWhatIs(String filename) throws IOException {
+    public String processWhatIs(Image img) throws IOException {
 
-        final File file = new File(filename);
-        final Image img = ImageIO.read(file);
         final ImageNeuralData input = new ImageNeuralData(img);
         input.downsample(this.downsample, false,
                 this.downsampleHeight, this.downsampleWidth, 1, -1);
         final int winner = this.network.winner(input);
-        System.out.println("What is: "
-                + filename + ", it seems to be: "
-                + this.neuron2identity.get(winner));
+        return this.neuron2identity.get(winner);
     }
 }
