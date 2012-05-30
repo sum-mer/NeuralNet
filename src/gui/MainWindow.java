@@ -21,6 +21,7 @@ import javax.swing.Timer;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import neuralNetwork.ImageNeuralNetwork;
+import neuralNetwork.NeuralNetworkThread;
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -42,48 +43,75 @@ public class MainWindow extends JFrame {
     private ImageIcon iconOrg;
     private JLabel labelForImgOrg;
     private JButton startButton;
-    private JPanel panelForImg;
     private JProgressBar progressBar;
     private java.util.Timer theTimer;
     private ImageNeuralNetwork program;
-    private boolean isReady;
+    private JButton checkButton;
+    private JLabel resultLabel;
+    private JSeparator jSeparator;
+    private JLabel descriptionLabel;
 
     public MainWindow(String car_Recognition) throws IOException {
         super(car_Recognition);
-        //BufferedImage image;
-        //image = javax.imageio.ImageIO.read(new File("images/Fiat/fiat1.jpg"));
-        //ImagePanel realImg = new ImagePanel(ImageProcessing.getScaledImage(image, 300, 200));
         program = new ImageNeuralNetwork();
         folderName = new File("images");
         brandDirs = folderName.listFiles();
-        startButton = new JButton("Start");
-        panelForImg = new JPanel();
+        startButton = new JButton("Trenuj sieć");
+        checkButton = new JButton("Sprawdź zdjęcie");
+        checkButton.setEnabled(false);
         progressBar = new javax.swing.JProgressBar();
-
+        resultLabel = new JLabel();
+        descriptionLabel = new JLabel("Wynik");
+        jSeparator = new JSeparator();
+        startButton.setBounds(10, 20, 100, 20);
+        progressBar.setBounds(120, 20, 450, 20);
+        jSeparator.setBounds(10, 60, 560, 2);
+        this.add(jSeparator);
         labelForImgOrg = new JLabel();
         labelForImgOrg.setHorizontalAlignment(JLabel.CENTER);
         labelForImgOrg.setBorder(BorderFactory.createLineBorder(Color.black, 3));
-        panelForImg.setLayout(new FlowLayout(FlowLayout.CENTER));
-        panelForImg.add(labelForImgOrg);
-        panelForImg.add(startButton);
 
-        panelForImg.add(progressBar);
+        this.add(startButton);
+        this.add(progressBar);
+        this.add(jSeparator);
+
+        labelForImgOrg.setBounds(60, 100, 300, 200);
+        this.add(labelForImgOrg);
+        checkButton.setBounds(400, 120, 160, 20);
+        this.add(checkButton);
+        descriptionLabel.setBounds(400, 150, 50, 30);
+        resultLabel.setBounds(460, 150, 50, 30);
+        descriptionLabel.setText("Wynik: ");
+        resultLabel.setText("brak");
+        this.add(descriptionLabel);
+        this.add(resultLabel);
+        
+
+        checkButton.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    if (img != null) {
+                        resultLabel.setText(program.processWhatIs(img));
+                        //System.out.println(program.processWhatIs(img));
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Dodaj zdjecie !", "Błąd", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+
         startButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
                 startButton.setEnabled(false);
-                startProgress(60);
-                try {
-                    program.processCreateTraining(15, 10, "noRGB");
-                    program.loadImages();
-                    program.processNetwork();
-                    program.processTrain();
-                    isReady = true;
-                } catch (IOException ex) {
-                    System.out.println("dupa");;
-                }
-                
-
+                Thread run = new ThreadPlugin(progressBar); //Calling the class "threadPlugin" we created that extends with Thread
+                run.start();
+                NeuralNetworkThread r = new NeuralNetworkThread(program);
+                Thread t = new Thread(r);
+                t.start();
             }
         });
 
@@ -114,10 +142,11 @@ public class MainWindow extends JFrame {
 
                         img = ImageIO.read(fileToRecognize);
 
-                        iconOrg = new ImageIcon(getScaledImage(img, 256, 256));
+                        iconOrg = new ImageIcon(getScaledImage(img, 300, 200));
 
                         labelForImgOrg.setIcon(iconOrg);
 
+                        //checkButton.setEnabled(true);
                     } catch (IOException ex) {
                         Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -180,8 +209,6 @@ public class MainWindow extends JFrame {
 
             }
         });
-        //removeImageJMenu.add(jMenuItem);
-        //jMenu.add(browseImagesJMenu);
         jMenu.add(removeImageJMenu);
         jMenu.add(addBrandJMenuItem);
 
@@ -213,13 +240,40 @@ public class MainWindow extends JFrame {
 
         this.setJMenuBar(jMenuBar);
 
-
-        //this.add(jMenuBar);
         this.setLayout(new BorderLayout());
-        this.getContentPane().add(panelForImg, BorderLayout.CENTER);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
-        this.setSize(600, 600);
+        this.setSize(600, 400);
+    }
+
+    class ThreadPlugin extends Thread {
+
+        int Delay = 620;
+        JProgressBar pb;
+
+        public ThreadPlugin(JProgressBar progressbar) {
+            pb = progressbar;
+        }
+
+        public void run() {
+            int minimum = 0;
+            int maximum = 100;
+
+            for (int i = minimum; i < maximum; i++) {
+                try {
+                    int value = pb.getValue();
+                    pb.setValue(value + 1);
+
+                    //Testing the progress bar if it already reaches to its maximum value
+                    if (pb.getValue() >= maximum) {
+                        checkButton.setEnabled(true);
+                    }
+
+                    Thread.sleep(Delay);
+                } catch (InterruptedException ignoredException) {
+                }
+            }
+        }
     }
 
     public void startProgress(int seconds) {
@@ -306,7 +360,7 @@ public class MainWindow extends JFrame {
         BufferedImage image;
         try {
             image = ImageIO.read(new File("images/canvas.jpg"));
-            ImageIcon canvas = new ImageIcon(getScaledImage(image, 256, 256));
+            ImageIcon canvas = new ImageIcon(getScaledImage(image, 300, 200));
             labelForImgOrg.setIcon(canvas);
         } catch (IOException e) {
             e.printStackTrace();
