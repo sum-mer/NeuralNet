@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package imageProcessing;
 
 import java.awt.Graphics2D;
@@ -12,10 +8,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
-/**
- *
- * @author Alek
- */
 public class ImageProcessing {
 
     public ImageProcessing() {

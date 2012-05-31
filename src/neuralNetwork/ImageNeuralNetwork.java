@@ -56,34 +56,6 @@ public class ImageNeuralNetwork {
 
         program.processCreateTraining(15, 10, "noRGB");
 
-        // pobieranie wszystkich obrazów z folderu images do uczenia sieci
-        // folder test jest pomijany - w nim przechowywane mają być zdjęcia do zapytań
-
-        /**
-         * File folderName = new File("images"); File brandDirs[] =
-         * folderName.listFiles();
-         *
-         * for (File brandName : brandDirs) { if
-         * (!brandName.getName().equals("test")) { if (brandName.isDirectory())
-         * { File brandFiles[] = brandName.listFiles(); for (File brandImg :
-         * brandFiles) { //System.out.println("Marka: " + brandName.getName() +"
-         * plik: " + brandImg.getName() );
-         * program.processInput(brandName.getName(), folderName + "/" +
-         * brandName.getName() + "/" + brandImg.getName()); } } } }
-         */
-//        program.processInput("fiat", "images/Fiat/fiat1.jpg");          // srebrna maska
-//        program.processInput("fiat", "images/Fiat/fiat2.jpg");          //niebieska maska
-//        program.processInput("fiat", "images/Fiat/fiat3.jpg");          // plastikowy zderzak
-//
-//        program.processInput("renault", "images/Renault/renault1.jpg"); // srebrna maska, czarne wywietrzniki po bokach    
-//        program.processInput("renault", "images/Renault/renault2.jpg"); // srebrna maska, czarne wywietrzniki po bokach, inny kąt padania słońca
-//        program.processInput("renault", "images/Renault/renault3.jpg");
-//        
-//        program.processInput("toyota", "images/Toyota/toyota1small.jpg");
-//        program.processInput("toyota", "images/Toyota/toyota1.jpg");    //metaliczne tło
-//        program.processInput("toyota", "images/Toyota/toyota2.jpg");    //przedni zderzak, srebrne elementy
-//        program.processInput("toyota", "images/Toyota/toyota3.jpg");    //srebrna maska
-//        program.processInput("toyota", "images/Toyota/toyota4.jpg");    //srebrny zderzak, nie pod katem prostym
         program.loadImages();
         program.processNetwork();
         program.processTrain();
@@ -116,37 +88,6 @@ public class ImageNeuralNetwork {
         return result;
     }
 
-    /**
-     * public void execute(final String file) throws IOException { final
-     * FileInputStream fstream = new FileInputStream(file); final
-     * DataInputStream in = new DataInputStream(fstream);
-     *
-     * final BufferedReader br = new BufferedReader( new InputStreamReader(in));
-     * while ((this.line = br.readLine()) != null) { executeLine(); }
-     * in.close(); }
-     */
-    /**
-     * private void executeCommand(final String command, final Map<String,
-     * String> args) throws IOException { if (command.equals("input")) {
-     * processInput(); } else if (command.equals("createtraining")) {
-     * processCreateTraining(); } else if (command.equals("train")) {
-     * processTrain(); } else if (command.equals("network")) { processNetwork();
-     * } else if (command.equals("whatis")) { processWhatIs(); } }
-     */
-    /**
-     * public void executeLine() throws IOException { final int index =
-     * this.line.indexOf(':'); if (index == -1) { throw new EncogError("Invalid
-     * command: " + this.line); } final String command = this.line.substring( 0,
-     * index).toLowerCase().trim(); final String argsStr =
-     * this.line.substring(index + 1).trim(); final StringTokenizer tok = new
-     * StringTokenizer(argsStr, ","); this.args.clear(); while
-     * (tok.hasMoreTokens()) { final String arg = tok.nextToken(); final int
-     * index2 = arg.indexOf(':'); if (index2 == -1) { throw new
-     * EncogError("Invalid command: " + this.line); } final String key =
-     * arg.substring(0, index2).toLowerCase().trim(); final String value =
-     * arg.substring(index2 + 1).trim(); this.args.put(key, value); }
-     * executeCommand(command, this.args); }
-     */
     public void loadImages() throws IOException {
         File folderName = new File("images");
         File brandDirs[] = folderName.listFiles();
@@ -177,13 +118,6 @@ public class ImageNeuralNetwork {
         System.out.println("Training set created");
     }
 
-    /**
-     * Funkcja dodaje do sieci zdjęcie
-     *
-     * @param identity nazwa identyfikująca znak, np: ferrari, maclaren..
-     * @param image ścieżka do pliku ze zdjęciem
-     * @throws IOException
-     */
     public void processInput(String identity, String image) throws IOException {
 
         final int idx = assignIdentity(identity);
@@ -223,10 +157,8 @@ public class ImageNeuralNetwork {
                 + this.outputCount);
         final double strategyError = 0.2;
         final int strategyCycles = 80;
-        //final Backpropagation train = new Backpropagation(this.network, this.training,0.1, 0.5);
         final ResilientPropagation train = new ResilientPropagation(this.network, this.training);
         train.addStrategy(new ResetStrategy(strategyError, strategyCycles));
-        //train.addStrategy(new SmartMomentum());
         if (strMode.equalsIgnoreCase("gui")) {
             EncogUtility.trainDialog(train, this.network, this.training);
         } else {

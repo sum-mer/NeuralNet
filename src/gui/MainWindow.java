@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package gui;
 
 import java.awt.*;
@@ -24,10 +20,6 @@ import neuralNetwork.ImageNeuralNetwork;
 import neuralNetwork.NeuralNetworkThread;
 import org.apache.commons.io.FileUtils;
 
-/**
- *
- * @author Alek
- */
 public class MainWindow extends JFrame {
 
     private JMenuBar jMenuBar;
@@ -129,6 +121,7 @@ public class MainWindow extends JFrame {
 
             public void actionPerformed(ActionEvent ae) {
                 fc = new JFileChooser();
+                fc.setCurrentDirectory(new File("images"));
                 FileFilter filter = new FileNameExtensionFilter("Image files", "jpg", "jpeg", "png", "bmp");
                 fc.setAcceptAllFileFilterUsed(false);
                 fc.addChoosableFileFilter(filter);
@@ -146,7 +139,6 @@ public class MainWindow extends JFrame {
 
                         labelForImgOrg.setIcon(iconOrg);
 
-                        //checkButton.setEnabled(true);
                     } catch (IOException ex) {
                         Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -175,7 +167,6 @@ public class MainWindow extends JFrame {
             }
         });
 
-        //jMenu.addSeparator();
         removeImageJMenu = new JMenu("Dodaj zdjęcie do marki");
         removeImageJMenu.setMnemonic(KeyEvent.VK_S);
         removeImageJMenu.addActionListener(new ActionListener() {
@@ -193,7 +184,7 @@ public class MainWindow extends JFrame {
                 String newBrandName = JOptionPane.showInputDialog(null, "Wpisz nazwę marki : ",
                         "Nowa marka", 1);
                 if (newBrandName != null) {
-                    // tworzenie pustego folderu dla nowej marki
+
                     File newDirectory = new File("images/" + newBrandName);
                     boolean status = newDirectory.mkdir();
                     JOptionPane.showMessageDialog(null, "Stworzyłeś folder dla marki : " + newBrandName,
@@ -206,7 +197,6 @@ public class MainWindow extends JFrame {
                     JOptionPane.showMessageDialog(null, "Anulowano dodawanie marki.",
                             "Nowa marka", 1);
                 }
-
             }
         });
         jMenu.add(removeImageJMenu);
