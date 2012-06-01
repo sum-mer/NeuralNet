@@ -174,6 +174,7 @@ public class ImageNeuralNetwork {
         input.downsample(this.downsample, false,
                 this.downsampleHeight, this.downsampleWidth, 1, -1);
         final int winner = this.network.winner(input);
+        
         return this.neuron2identity.get(winner);
     }
 }
